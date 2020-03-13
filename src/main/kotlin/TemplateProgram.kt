@@ -59,7 +59,8 @@ fun main() = application {
 
                             for (b in 0 until 8) {
                                 for (a in 0 until count) {
-                                    val position = Vector2(cos(theta * a) * radius, sin(theta * a) * radius)
+                                    val angle = theta * a + sin(seconds * 0.1 + a)
+                                    val position = Vector2(cos(angle) * radius, sin(angle) * radius)
                                     val control = position / (2.0 - b * 0.2)
                                     curveTo(control - mousePos, position)
                                 }
