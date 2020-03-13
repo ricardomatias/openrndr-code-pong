@@ -5,6 +5,7 @@ import org.openrndr.draw.loadImage
 import org.openrndr.draw.tint
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.random.Random
 
 fun main() = application {
     configure {
@@ -21,11 +22,22 @@ fun main() = application {
             drawer.image(image)
 
             drawer.fill = ColorRGBa.PINK
-            drawer.circle(cos(seconds) * width / 2.0 + width / 2.0, sin(0.5 * seconds) * height / 2.0 + height / 2.0, 140.0)
+            drawer.circle(
+                cos(seconds) * width / 2.0 + width / 2.0,
+                sin(0.5 * seconds) * height / 2.0 + height / 2.0,
+                140.0
+            )
+
+            val str = "OPENRNDR"
+            var str2 = ""
+            val low = Random(1234).nextBoolean() // FIXME
+            for(c in str) {
+                str2 += if (low) c.toLowerCase() else c.toUpperCase()
+            }
 
             drawer.fontMap = font
             drawer.fill = ColorRGBa.WHITE
-            drawer.text("OPENRNDR", width / 2.0, height / 2.0)
+            drawer.text(str2, width / 2.0, height / 2.0)
         }
     }
 }
