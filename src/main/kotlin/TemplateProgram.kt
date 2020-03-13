@@ -45,10 +45,12 @@ fun main() = application {
                 draw {
                     drawer.isolatedWithTarget(rt) {
                         drawer.stroke = null
-                        drawer.fill = paletteStudio.background.opacify(0.05)
+                        drawer.fill = paletteStudio.background.opacify(0.09)
                         drawer.rectangle(0.0, 0.0, w, h)
 //                        if (frameCount % (60 * 2) == 0) drawer.background(paletteStudio.background)
                         drawer.translate(w2, h2)
+                        drawer.scale(cos(seconds * 0.6) * 0.5 + 0.6)
+                        drawer.rotate(cos(seconds * 0.5) * 180.0)
 
                         val c = contour {
                             val theta = TAU / 30.0
@@ -64,13 +66,13 @@ fun main() = application {
                                     val control = position / (2.0 - b * 0.2)
                                     curveTo(control - mousePos, position)
                                 }
-                                radius += 20.0
+                                radius += cos(seconds * 0.6) * 200.0
                             }
                         }
 
                         for ((idx, e) in c.exploded.withIndex()) {
                             drawer.stroke = paletteStudio.colors2[idx % paletteStudio.colors2.size]
-                            drawer.strokeWeight = 2.0
+                            drawer.strokeWeight = 2.0 + 4.0 * (cos(PI + seconds * 0.6) * 0.5 + 0.5)
 
                             drawer.contour(e)
                         }
