@@ -72,9 +72,10 @@ fun main() = application {
 
                         for ((idx, e) in c.exploded.withIndex()) {
                             drawer.stroke = paletteStudio.colors2[idx % paletteStudio.colors2.size]
-                            drawer.strokeWeight = 2.0 + 4.0 * (cos(PI + seconds * 0.6) * 0.5 + 0.5)
+                            drawer.strokeWeight = 2.0 + 4.0 * (cos((TAU / 5.0) + seconds * 0.6) * 0.5 + 0.5)
 
-                            drawer.contour(e)
+                            val s = sin((seconds * 0.6) + (idx * TAU)) * 0.5 + 0.5
+                            drawer.contour(e.sub(0.0, s))
                         }
                     }
 
@@ -84,7 +85,7 @@ fun main() = application {
                     shadow.download()
                     for(x in 50 until width-50 step 50) {
                         drawer.fill = shadow[x, height-50]
-                        drawer.rectangle(x.toDouble(), height-100.0, 20.0, 80.0)
+                        drawer.rectangle(x.toDouble(), height - 100.0, 20.0, 80.0)
                     }
                 }
             }
