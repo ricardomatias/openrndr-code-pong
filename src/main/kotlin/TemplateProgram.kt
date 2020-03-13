@@ -79,6 +79,13 @@ fun main() = application {
                     }
 
                     drawer.image(rt.colorBuffer(0))
+
+                    val shadow = rt.colorBuffer(0).shadow
+                    shadow.download()
+                    for(x in 50 until width-50 step 50) {
+                        drawer.fill = shadow[x, height-50]
+                        drawer.rectangle(x.toDouble(), height-100.0, 20.0, 80.0)
+                    }
                 }
             }
         }
