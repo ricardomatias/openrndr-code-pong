@@ -1,6 +1,8 @@
 import org.openrndr.Program
 import org.openrndr.application
 import org.openrndr.extra.olive.Olive
+import org.openrndr.extra.olive.Resources
+import org.openrndr.extra.palette.PaletteStudio
 
 /**
  *  This is a template for a live program.
@@ -11,12 +13,14 @@ import org.openrndr.extra.olive.Olive
  *  instructions on using the live coding environment.
  */
 
+val paletteStudio = PaletteStudio()
+
 fun main() = application {
     configure {
         width = 800
         height = 800
     }
     program {
-        extend(Olive<Program>())
+        extend(Olive<Program>(Resources(listOf(".yaml"))))
     }
 }
