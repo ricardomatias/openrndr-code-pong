@@ -1,18 +1,33 @@
-# OPENRNDR template project
-A feature rich template for creating OPENRNDR programs based on Gradle/Kts
+# code-pong-2
 
-The template consists of a configuration for Gradle and an example OPENRNDR program. The Gradle configuration should serve as the
-go-to starting point for writing OPENRNDR-based software.
+Coding game. Two people. OPENRNDR. Second try.
 
-If you are looking at this from IntelliJ IDEA you can start by expanding the _project_ tab on the left. You will find a template program in `src/main/kotlin/TemplateProgram.kt`
+> I was wondering if you would like to play some kind of code game. It
+> could be called code-pong :) You write 5 lines of code and send it by
+> e-mail. I write or change 5 lines of code, send it back, and so on :)
+> Like a chess game. First it will be something really simple. But with
+> time it can become something complex and interesting. Or not :)
+>
+> Git would be perfect for this, because it keeps the full history of
+> changes, and one can see the whole process from the beginning. It also
+> shows you how many lines you changed, so you don't go past the limit of
+> 5 :) Would you like to try?
 
-You will find some [basic instructions](https://guide.openrndr.org/#/02_Getting_Started_with_OPENRNDR/C00_SetupYourFirstProgram) in the [OPENRNDR guide](https://guide.openrndr.org)
+> As for the game: yes, that sounds cool :)
 
-## Gradle tasks
- - `run` runs the TemplateProgram
- - `jar` creates an executable platform specific jar file with all dependencies
- - `zipDistribution` creates a zip file containing the application jar and the data folder
+## Rules
 
-## Cross builds
+Clone the repo, edit max 5 lines (Example: add 2 lines, edit 2 lines, delete 1 line), push changes, wait for your turn, repeat :)
 
-To create runnable jars for a platform different from the platform you use to build one uses `./gradlew jar --PtargetPlatform=<platform>`. The supported platforms are `windows`, `macos`, `linux-x64` and `linux-arm64`. Note that the `linux-arm64` platform will only work with OPENRNDR snapshot builds from master and OPENRNDR 0.3.39 (a future version).
+I wonder if we can verify the changes? If we do
+
+    git diff --shortstat
+
+and I changed 1 line and added 4 lines, the stats show 5 lines inserted and 1
+line deleted. Maybe the rule could be changed to having that command show
+```inserted <= 5 && deleted <= 5``` ?
+
+## To be figured out
+
+* How do you know when it's your turn? Maybe at the top of the file we have a comment mentioning whose turn it is? So if I edit, I add you as next editor. Then more than 2 people could play.
+* Do comments compute as changed lines?
