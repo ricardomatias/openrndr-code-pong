@@ -1,12 +1,11 @@
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
-import org.openrndr.draw.loadFont
-import org.openrndr.draw.loadImage
-import org.openrndr.draw.tint
+import org.openrndr.draw.*
 import org.openrndr.extra.compositor.compose
 import org.openrndr.extra.compositor.draw
 import org.openrndr.extra.compositor.layer
 import org.openrndr.extra.gui.GUI
+import org.openrndr.extra.noise.fastFloor
 import org.openrndr.math.Vector2
 import org.openrndr.shape.contour
 import kotlin.math.PI
@@ -33,42 +32,56 @@ fun main() = application {
         val gui = GUI()
         val count = 30
 
-        val c = contour {
-            val theta = TAU / 30.0
-            var radius = w4
+        paletteStudio.select(53)
 
-            moveTo(Vector2(cos(TAU - theta) * radius, sin(TAU - theta) * radius))
-
-            for (b in 0 until 8) {
-                for (a in 0 until count) {
-                    val position = Vector2(cos(theta * a) * radius, sin(theta * a) * radius)
-                    val control = position / (2.0 - b * 0.2)
-                    curveTo(control, position)
-                }
-                radius += 20.0
-            }
+        val rt = renderTarget(width, height) {
+            colorBuffer()
+            depthBuffer()
         }
+        rt.colorBuffer(0).fill(paletteStudio.background)
 
         val compositor = compose {
             layer {
                 draw {
-                    drawer.background(paletteStudio.background)
-                    drawer.translate(w2, h2)
+                    drawer.isolatedWithTarget(rt) {
+                        drawer.stroke = null
+                        drawer.fill = paletteStudio.background.opacify(0.05)
+                        drawer.rectangle(0.0, 0.0, w, h)
+//                        if (frameCount % (60 * 2) == 0) drawer.background(paletteStudio.background)
+                        drawer.translate(w2, h2)
 
-                    for ((idx, e) in c.exploded.withIndex()) {
-                        drawer.stroke = paletteStudio.colors2[idx % paletteStudio.colors2.size]
-                        drawer.strokeWeight = 2.0
+                        val c = contour {
+                            val theta = TAU / 30.0
+                            var radius = w4
+                            val mousePos = (Vector2(w2, h2) - mouse.position)
 
-                        drawer.contour(e)
+                            moveTo(Vector2(cos(TAU - theta) * radius, sin(TAU - theta) * radius))
+
+                            for (b in 0 until 8) {
+                                for (a in 0 until count) {
+                                    val position = Vector2(cos(theta * a) * radius, sin(theta * a) * radius)
+                                    val control = position / (2.0 - b * 0.2)
+                                    curveTo(control - mousePos, position)
+                                }
+                                radius += 20.0
+                            }
+                        }
+
+                        for ((idx, e) in c.exploded.withIndex()) {
+                            drawer.stroke = paletteStudio.colors2[idx % paletteStudio.colors2.size]
+                            drawer.strokeWeight = 2.0
+
+                            drawer.contour(e)
+                        }
                     }
+
+                    drawer.image(rt.colorBuffer(0))
                 }
             }
         }
 
-        paletteStudio.select(53)
-
         extend(paletteStudio)
-        extend(gui)
+//        extend(gui)
         extend {
             compositor.draw(drawer)
         }
