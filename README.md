@@ -17,7 +17,9 @@ Coding game. Two people. OPENRNDR. Second try.
 
 ## Rules
 
-Clone the repo, edit max 5 lines (Example: add 2 lines, edit 2 lines, delete 1 line), push changes, wait for your turn, repeat :)
+1. Clone the repo, edit max 5 lines (Example: add 2 lines, edit 2 lines, delete 1 line), push changes, wait for your turn, repeat :)
+2. Formatting doesn't count
+3. imports don't count
 
 I wonder if we can verify the changes? If we do
 
