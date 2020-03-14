@@ -1,17 +1,18 @@
 import org.openrndr.application
-import org.openrndr.color.ColorRGBa
-import org.openrndr.draw.*
+import org.openrndr.draw.isolatedWithTarget
+import org.openrndr.draw.loadFont
+import org.openrndr.draw.renderTarget
 import org.openrndr.extra.compositor.compose
 import org.openrndr.extra.compositor.draw
 import org.openrndr.extra.compositor.layer
+import org.openrndr.extra.compositor.post
+import org.openrndr.extra.fx.blur.GaussianBloom
 import org.openrndr.extra.gui.GUI
-import org.openrndr.extra.noise.fastFloor
 import org.openrndr.math.Vector2
 import org.openrndr.shape.contour
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.random.Random
 
 fun main() = application {
     configure {
@@ -39,6 +40,8 @@ fun main() = application {
             depthBuffer()
         }
         rt.colorBuffer(0).fill(paletteStudio.background)
+
+        val fx = GaussianBloom()
 
         val compositor = compose {
             layer {
@@ -83,12 +86,15 @@ fun main() = application {
 
                     val shadow = rt.colorBuffer(0).shadow
                     shadow.download()
-                    for(x in 50 until width-50 step 50) {
-                        drawer.fill = shadow[x, height-50]
+                    for (x in 50 until width - 50 step 50) {
+                        drawer.fill = shadow[x, height - 50]
                         drawer.rectangle(x.toDouble(), height - 100.0, 20.0, 80.0)
                     }
                 }
             }
+            fx.sigma = 3.0 // 10.0 * mouse.position.x / width // don't see it changing?
+            fx.window = 2  // 10 * mouse.position.y / height  // don't see it changing?
+            post(fx)
         }
 
         extend(paletteStudio)
