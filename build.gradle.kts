@@ -36,7 +36,8 @@ val orxFeatures = setOf(
   "orx-poisson-fill",
 //  "orx-runway",
 //  "orx-shader-phrases",
-    "orx-shade-styles"
+    "orx-shade-styles",
+    "orx-panel"
 //  "orx-shapes",
 //  "orx-syphon",
 //  "orx-temporal-blur",
@@ -50,14 +51,11 @@ val openrndrFeatures = setOf(
 )
 
 /*  Which version of OPENRNDR, ORX and Panel should be used? */
-val openrndrUseSnapshot = true
-val openrndrVersion = if (openrndrUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.39"
+val openrndrUseSnapshot = false
+val openrndrVersion = if (openrndrUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.42"
 
-val panelUseSnapshot = false
-val panelVersion = if (panelUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.21"
-
-val orxUseSnapshot = true
-val orxVersion = if (orxUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.49"
+val orxUseSnapshot = false
+val orxVersion = if (orxUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.51"
 
 //<editor-fold desc="This is code for OPENRNDR, no need to edit this .. most of the times">
 val supportedPlatforms = setOf("windows", "macos", "linux-x64", "linux-arm64")
@@ -99,7 +97,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    if (openrndrUseSnapshot || orxUseSnapshot || panelUseSnapshot) {
+    if (openrndrUseSnapshot || orxUseSnapshot) {
         mavenLocal()
     }
     maven(url = "https://dl.bintray.com/openrndr/openrndr")
@@ -161,10 +159,6 @@ dependencies {
         runtimeOnly(openrndrNatives("ffmpeg"))
     }
 
-    if ("panel" in openrndrFeatures) {
-        implementation("org.openrndr.panel:openrndr-panel:$panelVersion")
-    }
-
     for (feature in orxFeatures) {
         implementation(orx(feature))
     }
@@ -174,7 +168,7 @@ dependencies {
     }
 
     if ("orx-olive" in orxFeatures) {
-        implementation("org.jetbrains.kotlin", "kotlin-scripting-compiler-embeddable")
+        implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")
     }
 
     implementation(kotlin("stdlib-jdk8"))

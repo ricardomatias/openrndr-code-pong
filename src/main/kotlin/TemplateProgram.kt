@@ -2,12 +2,10 @@ import org.openrndr.application
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.loadFont
 import org.openrndr.draw.renderTarget
-import org.openrndr.extra.compositor.compose
-import org.openrndr.extra.compositor.draw
-import org.openrndr.extra.compositor.layer
-import org.openrndr.extra.compositor.post
+import org.openrndr.extra.compositor.*
 import org.openrndr.extra.fx.blur.GaussianBloom
 import org.openrndr.extra.gui.GUI
+import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.math.Vector2
 import org.openrndr.shape.contour
 import kotlin.math.PI
@@ -20,7 +18,7 @@ fun main() = application {
         height = 576
     }
 
-    program {
+    oliveProgram {
         val font = loadFont("data/fonts/IBMPlexMono-Regular.ttf", 64.0)
         val w = width.toDouble()
         val h = height.toDouble()
@@ -44,7 +42,7 @@ fun main() = application {
         val fx = GaussianBloom()
 
         val compositor = compose {
-            layer {
+            val layer1 = layer {
                 draw {
                     drawer.isolatedWithTarget(rt) {
                         drawer.stroke = null
@@ -91,10 +89,11 @@ fun main() = application {
                         drawer.rectangle(x.toDouble(), height - 100.0, 20.0, 80.0)
                     }
                 }
+                fx.sigma = 2.0 // 10.0 * mouse.position.x / width // don't see it changing?
+                fx.window = 2  // 10 * mouse.position.y / height  // don't see it changing?
+                fx.gain = 0.5
+                post(fx)
             }
-            fx.sigma = 3.0 // 10.0 * mouse.position.x / width // don't see it changing?
-            fx.window = 2  // 10 * mouse.position.y / height  // don't see it changing?
-            post(fx)
         }
 
         extend(paletteStudio)
