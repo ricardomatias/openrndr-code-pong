@@ -6,6 +6,7 @@ import org.openrndr.extra.compositor.*
 import org.openrndr.extra.fx.blur.GaussianBloom
 import org.openrndr.extra.gui.GUI
 import org.openrndr.extra.olive.oliveProgram
+import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Vector2
 import org.openrndr.shape.contour
 import kotlin.math.PI
@@ -19,6 +20,7 @@ fun main() = application {
     }
 
     oliveProgram {
+        val paletteStudio = PaletteStudio()
         val font = loadFont("data/fonts/IBMPlexMono-Regular.ttf", 64.0)
         val w = width.toDouble()
         val h = height.toDouble()
