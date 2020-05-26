@@ -14,6 +14,7 @@ import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
+import java.util.*
 import kotlin.math.PI
 
 
@@ -66,9 +67,9 @@ fun main() = application {
         val rightComp = compose {
             layer {
                 draw {
-                    drawer.clear(rgb(0.94))
+                    drawer.clear(rgb(0.0))
 
-                    drawer.stroke = ColorRGBa.BLACK
+                    drawer.stroke = ColorRGBa.WHITE
 
                     Random.resetState()
 
@@ -78,10 +79,10 @@ fun main() = application {
                         val r = (h - m) / 10.0
                         val y = it * r
 
-                        drawer.strokeWeight = if (it % 3 == 0) 4.0 else 1.0
+                        drawer.strokeWeight = 2.0 + (it % 3) * 2.0
                         drawer.lineSegment(
-                            Vector2(Random.double(m / 2.0, m), y),
-                            Vector2(Random.double(w - m, w - (m / 2)), y)
+                            Vector2(0.0, y),
+                            Vector2(w2 +  it * (w2/10.0), y)
                         )
                     }
                 }
