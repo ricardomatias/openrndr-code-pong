@@ -4,11 +4,15 @@ import org.openrndr.color.rgb
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.loadFont
 import org.openrndr.draw.renderTarget
-import org.openrndr.extra.compositor.*
+import org.openrndr.extensions.Screenshots
+import org.openrndr.extra.compositor.compose
+import org.openrndr.extra.compositor.draw
+import org.openrndr.extra.compositor.layer
 import org.openrndr.extra.gui.GUI
 import org.openrndr.extra.noise.Random
 import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
+import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import kotlin.math.PI
 
@@ -45,6 +49,15 @@ fun main() = application {
             layer {
                 draw {
                     drawer.clear(ColorRGBa.WHITE)
+
+                    (1..10).forEach {
+                        drawer.fill = ColorRGBa.BLACK
+                        drawer.strokeWeight = 2.0 + ((it*19) % 4) * 2
+                        drawer.lineSegment(
+                            Vector2.ZERO - 100.0,
+                            Polar(it * 8.0, 2000.0).cartesian
+                        )
+                    }
                 }
 
             }
@@ -66,13 +79,17 @@ fun main() = application {
                         val y = it * r
 
                         drawer.strokeWeight = if (it % 3 == 0) 4.0 else 1.0
-                        drawer.lineSegment(Vector2(Random.double(m/2.0, m), y), Vector2(Random.double(w-m, w - (m/2)), y))
+                        drawer.lineSegment(
+                            Vector2(Random.double(m / 2.0, m), y),
+                            Vector2(Random.double(w - m, w - (m / 2)), y)
+                        )
                     }
                 }
 
             }
         }
 
+        extend(Screenshots())
         extend(paletteStudio)
         extend(gui)
         extend {

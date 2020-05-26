@@ -15,7 +15,9 @@ Coding game. Two people. OPENRNDR. Second try.
 
 > As for the game: yes, that sounds cool :)
 
-## Rules
+## Sketch01. 
+
+**Rules**
 
 1. Clone the repo, edit max 5 lines (Example: add 2 lines, edit 2 lines, delete 1 line), push changes, wait for your turn, repeat :)
 2. Formatting doesn't count
@@ -27,9 +29,19 @@ I wonder if we can verify the changes? If we do
 
 and I changed 1 line and added 4 lines, the stats show 5 lines inserted and 1
 line deleted. Maybe the rule could be changed to having that command show
-```inserted <= 5 && deleted <= 5``` ?
+`inserted <= 5 && deleted <= 5` ?
 
 ## To be figured out
 
 * How do you know when it's your turn? Maybe at the top of the file we have a comment mentioning whose turn it is? So if I edit, I add you as next editor. Then more than 2 people could play.
 * Do comments compute as changed lines?
+
+## Sketch02
+
+**Constrains**
+
+- Lines
+- Black or Saturated
+
+Press [space] to take a screenshot of each version.
+
