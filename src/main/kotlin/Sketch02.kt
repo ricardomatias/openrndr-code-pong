@@ -4,6 +4,7 @@ import org.openrndr.color.rgb
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.loadFont
 import org.openrndr.draw.renderTarget
+import org.openrndr.draw.shadeStyle
 import org.openrndr.extensions.Screenshots
 import org.openrndr.extra.compositor.compose
 import org.openrndr.extra.compositor.draw
@@ -14,7 +15,6 @@ import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
-import java.util.*
 import kotlin.math.PI
 
 
@@ -46,6 +46,9 @@ fun main() = application {
 
         /************** SKETCH *****************/
 
+        val leftStyle1 = shadeStyle {
+            fragmentTransform = "float l = length(v_viewPosition+100.0); x_stroke.rgb += cos(l*0.1 + p_time + cos(l*0.4)) + 0.5 + 0.5*cos(l*cos(l));"
+        }
         val leftComp = compose {
             layer {
                 draw {
@@ -53,7 +56,9 @@ fun main() = application {
 
                     (1..10).forEach {
                         drawer.fill = ColorRGBa.BLACK
-                        drawer.strokeWeight = 2.0 + ((it*19) % 4) * 2
+                        drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2
+                        leftStyle1.parameter("time", (it * 4) % TAU + seconds)
+                        drawer.shadeStyle = leftStyle1
                         drawer.lineSegment(
                             Vector2.ZERO - 100.0,
                             Polar(it * 8.0, 2000.0).cartesian
@@ -82,7 +87,7 @@ fun main() = application {
                         drawer.strokeWeight = 2.0 + (it % 3) * 2.0
                         drawer.lineSegment(
                             Vector2(0.0, y),
-                            Vector2(w2 +  it * (w2/10.0), y)
+                            Vector2(w2 + it * (w2 / 10.0), y)
                         )
                     }
                 }
