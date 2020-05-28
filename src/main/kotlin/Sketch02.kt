@@ -17,6 +17,7 @@ import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.sin
 
 
 fun main() = application {
@@ -47,23 +48,21 @@ fun main() = application {
 
         /************** SKETCH *****************/
 
-        val leftStyle1 = shadeStyle {
-            fragmentTransform = "float l = length(v_viewPosition+100.0); x_stroke.rgb += cos(l*0.1 + p_time + cos(l*0.4)) + 0.5 + 0.5*cos(l*cos(l));"
-        }
         val leftComp = compose {
             layer {
                 draw {
                     drawer.clear(ColorRGBa.WHITE)
 
-                    (1..10).forEach {
+                    (1..45).forEach {
+                        val c = Vector2(100.0, h2 * 1.1 * sin(seconds * 0.1 + it) - h2)
                         drawer.fill = ColorRGBa.BLACK
                         drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2
-                        leftStyle1.parameter("time", (it * 4) % TAU + seconds)
-                        drawer.shadeStyle = leftStyle1
-                        drawer.lineSegment(
-                            Vector2.ZERO - 100.0,
-                            Polar(it * 8.0, 2000.0).cartesian
-                        )
+                        drawer.shadeStyle = shadeStyle {
+                            fragmentTransform = "float l = length(v_viewPosition.xy+p_c); x_stroke.rgb += cos(l*0.1 + p_time + cos(l*0.4)) + 0.5 + 0.5*cos(l*cos(l));"
+                            parameter("c", c)
+                            parameter("time", (it * 4) % TAU + seconds)
+                        }
+                        drawer.lineSegment(-c, Polar(it * 8.0, 2000.0).cartesian)
                     }
                 }
 
