@@ -16,6 +16,7 @@ import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import kotlin.math.PI
+import kotlin.math.cos
 
 
 fun main() = application {
@@ -83,6 +84,14 @@ fun main() = application {
                     (1..10).forEach {
                         val r = (h - m) / 10.0
                         val y = it * r
+
+                        drawer.shadeStyle = shadeStyle {
+                            fragmentTransform = """
+                                x_stroke.rgb *= step(p_time, 0.0);
+                                x_stroke.rgb *= abs(p_time) + floor(v_ftcoord.x * 2.0) / 2.0;
+                            """.trimIndent()
+                            parameter("time", cos(it * 20.0 % TAU + seconds))
+                        }
 
                         drawer.strokeWeight = 2.0 + (it % 3) * 2.0
                         drawer.lineSegment(
