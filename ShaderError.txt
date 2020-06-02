@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 // -- primitiveTypes
 #define d_vertex_buffer 0
@@ -79,9 +79,8 @@ void main(void) {
     vec4 x_stroke = u_stroke;
     vec4 x_fill = u_fill;
 
-    {                 vec2 p = fract(v_viewPosition.xy * 10.0) / 10.0;
-//                x_stroke.rgb *= step(cos(p_time), 0.0);
-                x_stroke.rgb *= floor(p_time + c_contourPosition.x * 4.0) / 4.0; }
+    {                                 x_stroke.rgb *= step(p_time, 0.0);
+                                //x_stroke.rgb *= abs(p_time) + floor(v_ftcoord.x * 2.0) / 2.0; }
 
     vec4 color = mix(x_stroke, x_fill, strokeFillFactor)  * vec4(1, 1, 1, strokeAlpha);
     vec4 result = color;

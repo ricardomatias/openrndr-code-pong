@@ -1,6 +1,7 @@
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.rgb
+import org.openrndr.color.rgba
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.loadFont
 import org.openrndr.draw.renderTarget
@@ -9,12 +10,19 @@ import org.openrndr.extensions.Screenshots
 import org.openrndr.extra.compositor.compose
 import org.openrndr.extra.compositor.draw
 import org.openrndr.extra.compositor.layer
+import org.openrndr.extra.compositor.post
+import org.openrndr.extra.fx.blur.LaserBlur
+import org.openrndr.extra.fx.edges.EdgesWork
+import org.openrndr.extra.fx.edges.LumaSobel
 import org.openrndr.extra.gui.GUI
+import org.openrndr.extra.gui.addTo
 import org.openrndr.extra.noise.Random
+import org.openrndr.extra.noise.perlin
 import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
+import java.io.File
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -89,19 +97,22 @@ fun main() = application {
                                 x_stroke.rgb *= step(p_time, 0.0);
                                 x_stroke.rgb *= abs(p_time) + floor(v_ftcoord.x * 2.0) / 2.0;
                             """.trimIndent()
-                            parameter("time", cos(it * 20.0 % TAU + seconds))
+                            parameter("time", cos(it * 20.0 % TAU + seconds * 5.0))
                         }
 
-                        drawer.strokeWeight = 2.0 + (it % 3) * 2.0
+                        drawer.strokeWeight = 2.0 + (it % 3) * 4.0
                         drawer.lineSegment(
                             Vector2(0.0, y),
-                            Vector2(w2 + it * (w2 / 10.0), y)
+                            Vector2(w2 + w2, y)
                         )
                     }
                 }
-
+                post(LaserBlur().addTo(gui))
+                post(LumaSobel())
             }
         }
+
+        gui.loadParameters(File("data/parameters/params.json"))
 
         extend(Screenshots())
         extend(paletteStudio)
