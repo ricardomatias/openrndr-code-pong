@@ -1,7 +1,8 @@
+import org.openrndr.animatable.Animatable
+import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.rgb
-import org.openrndr.color.rgba
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.loadFont
 import org.openrndr.draw.renderTarget
@@ -12,12 +13,10 @@ import org.openrndr.extra.compositor.draw
 import org.openrndr.extra.compositor.layer
 import org.openrndr.extra.compositor.post
 import org.openrndr.extra.fx.blur.LaserBlur
-import org.openrndr.extra.fx.edges.EdgesWork
 import org.openrndr.extra.fx.edges.LumaSobel
 import org.openrndr.extra.gui.GUI
 import org.openrndr.extra.gui.addTo
 import org.openrndr.extra.noise.Random
-import org.openrndr.extra.noise.perlin
 import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
@@ -56,21 +55,32 @@ fun main() = application {
 
         /************** SKETCH *****************/
 
+        class LAnim() : Animatable() {
+            var rot: Double = 0.0
+        }
+        val lAnim = LAnim()
         val leftComp = compose {
-            layer {
+             layer {
                 draw {
+                    lAnim.updateAnimation()
+                    if (!lAnim.hasAnimations()) {
+                        Random.seed = System.currentTimeMillis().toString()
+                        lAnim.animate("rot", lAnim.rot + Random.double(-45.0, 45.0), Random.int(200, 2000).toLong(), Easing.CubicInOut)
+                        lAnim.complete()
+                        lAnim.delay(Random.int(1000, 10000).toLong())
+                    }
                     drawer.clear(ColorRGBa.WHITE)
 
                     (1..45).forEach {
-                        val c = Vector2(100.0, h2 * 1.1 * sin(seconds * 0.1 + it) - h2)
-                        drawer.fill = ColorRGBa.BLACK
+                        val c = Vector2(100.0, h2 * 1.1 * sin((seconds + lAnim.rot) * 0.1  + it) - h2)
                         drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2
                         drawer.shadeStyle = shadeStyle {
-                            fragmentTransform = "float l = length(v_viewPosition.xy+p_c); x_stroke.rgb += cos(l*0.1 + p_time + cos(l*0.4)) + 0.5 + 0.5*cos(l*cos(l));"
+                            fragmentTransform = "float l = length(v_viewPosition.xy+p_c); x_stroke.rgb += cos(l*0.1 + p_time + cos(l*0.4)) + 0.5 + 0.5*cos(l*cos(l)) + vec3(0.0, p_r, -p_r);"
                             parameter("c", c)
-                            parameter("time", (it * 4) % TAU + seconds)
+                            parameter("r", if(it % 17 == 3) 1.0 else 0.0)
+                            parameter("time", (it * 4) % TAU + seconds + lAnim.rot)
                         }
-                        drawer.lineSegment(-c, Polar(it * 8.0, 2000.0).cartesian)
+                        drawer.lineSegment(-c, Polar(it * 8.0 + lAnim.rot, 2000.0).cartesian)
                     }
                 }
 
