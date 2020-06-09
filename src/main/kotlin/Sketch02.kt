@@ -21,6 +21,7 @@ import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
+import org.openrndr.math.mod
 import java.io.File
 import kotlin.math.PI
 import kotlin.math.cos
@@ -100,7 +101,7 @@ fun main() = application {
 
                     (1..10).forEach {
                         val r = (h - m) / 10.0
-                        val y = it * r
+                        val y = mod(it * r + lAnim.rot * 10.0, h)
 
                         drawer.shadeStyle = shadeStyle {
                             fragmentTransform = """
@@ -112,8 +113,8 @@ fun main() = application {
 
                         drawer.strokeWeight = 2.0 + (it % 3) * 4.0
                         drawer.lineSegment(
-                            Vector2(0.0, y),
-                            Vector2(w2 + w2, y)
+                            Vector2(lAnim.rot * 10.0, y),
+                            Vector2(w2 + w2 - lAnim.rot * 10.0, it * r)
                         )
                     }
                 }
