@@ -56,35 +56,43 @@ fun main() = application {
 
         /************** SKETCH *****************/
 
-        class LAnim() : Animatable() {
+        class LAnim : Animatable() {
             var rot: Double = 0.0
         }
-        val lAnim = LAnim()
+
+        val lAnims = List(45) { LAnim() }
+        val barcode = shadeStyle {
+            fragmentTransform = """
+                float l = length(v_viewPosition.xy+p_c);
+                float modt = mod(p_id + p_time, 17.0);
+                float r = smoothstep(4.5, 5.0, modt) - smoothstep(6.0, 6.5, modt);
+                x_stroke.rgb += cos(l * 0.1 + p_time + cos(l * 0.4)) + 0.5 + 0.5 * cos(l * cos(l)) + vec3(r, r * 0.6, 0);
+                """.trimIndent()
+        }
         val leftComp = compose {
-             layer {
+            layer {
                 draw {
-                    lAnim.updateAnimation()
-                    if (!lAnim.hasAnimations()) {
-                        Random.seed = System.currentTimeMillis().toString()
-                        lAnim.animate("rot", lAnim.rot + Random.double(-45.0, 45.0), Random.int(200, 2000).toLong(), Easing.CubicInOut)
-                        lAnim.complete()
-                        lAnim.delay(Random.int(1000, 10000).toLong())
-                    }
                     drawer.clear(ColorRGBa.WHITE)
 
-                    (1..45).forEach {
-                        val c = Vector2(100.0, h2 * 1.1 * sin((seconds + lAnim.rot) * 0.1  + it) - h2)
-                        drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2
-                        drawer.shadeStyle = shadeStyle {
-                            fragmentTransform = "float l = length(v_viewPosition.xy+p_c); x_stroke.rgb += cos(l*0.1 + p_time + cos(l*0.4)) + 0.5 + 0.5*cos(l*cos(l)) + vec3(0.0, p_r, -p_r);"
-                            parameter("c", c)
-                            parameter("r", if(it % 17 == 3) 1.0 else 0.0)
-                            parameter("time", (it * 4) % TAU + seconds + lAnim.rot)
+                    lAnims.forEachIndexed { it, anim ->
+                        anim.updateAnimation()
+                        if (!anim.hasAnimations()) {
+                            Random.seed = System.currentTimeMillis().toString()
+                            val type = Random.int(1, 4)
+                            val dur = Random.int(200, 2000).toLong()
+                            anim.animate("rot",anim.rot + Random.double(-45.0, 45.0), dur, Easing.CubicInOut)
+                            anim.complete()
+                            anim.delay(2500 * type - dur)
                         }
-                        drawer.lineSegment(-c, Polar(it * 8.0 + lAnim.rot, 2000.0).cartesian)
+                        val c = Vector2(100.0, h2 * 1.1 * sin(anim.rot * 0.1 + it) - h2)
+                        barcode.parameter("c", c)
+                        barcode.parameter("id", it * 1.0)
+                        barcode.parameter("time", (it * 4) % TAU + seconds + anim.rot)
+                        drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2
+                        drawer.shadeStyle = barcode
+                        drawer.lineSegment(-c, Polar(it * 8.0 + anim.rot, 2000.0).cartesian)
                     }
                 }
-
             }
         }
 
@@ -101,7 +109,7 @@ fun main() = application {
 
                     (1..10).forEach {
                         val r = (h - m) / 10.0
-                        val y = mod(it * r + lAnim.rot * 10.0, h)
+                        val y = mod(it * r + lAnims[0].rot * 10.0, h)
 
                         drawer.shadeStyle = shadeStyle {
                             fragmentTransform = """
@@ -113,8 +121,8 @@ fun main() = application {
 
                         drawer.strokeWeight = 2.0 + (it % 3) * 4.0
                         drawer.lineSegment(
-                            Vector2(lAnim.rot * 10.0, y),
-                            Vector2(w2 + w2 - lAnim.rot * 10.0, it * r)
+                            Vector2(lAnims[0].rot * 10.0, y),
+                            Vector2(w2 + w2 - lAnims[0].rot * 10.0, it * r)
                         )
                     }
                 }
