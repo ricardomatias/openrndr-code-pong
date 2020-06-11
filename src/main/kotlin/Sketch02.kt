@@ -1,8 +1,10 @@
 import org.openrndr.animatable.Animatable
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
+import org.openrndr.color.ColorHSVa
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.rgb
+import org.openrndr.color.rgba
 import org.openrndr.draw.isolatedWithTarget
 import org.openrndr.draw.loadFont
 import org.openrndr.draw.renderTarget
@@ -13,6 +15,8 @@ import org.openrndr.extra.compositor.draw
 import org.openrndr.extra.compositor.layer
 import org.openrndr.extra.compositor.post
 import org.openrndr.extra.fx.blur.LaserBlur
+import org.openrndr.extra.fx.distort.Perturb
+import org.openrndr.extra.fx.distort.TapeNoise
 import org.openrndr.extra.fx.edges.LumaSobel
 import org.openrndr.extra.gui.GUI
 import org.openrndr.extra.gui.addTo
@@ -22,8 +26,10 @@ import org.openrndr.extra.palette.PaletteStudio
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import org.openrndr.math.mod
+import org.openrndr.shape.Rectangle
 import java.io.File
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -50,6 +56,8 @@ fun main() = application {
         val rightSide = renderTarget(w.toInt(), height) {
             colorBuffer()
         }
+
+        rightSide.colorBuffer(0).fill(ColorRGBa.BLACK)
 
         val font = loadFont("data/fonts/IBMPlexMono-Regular.ttf", 64.0)
         val gui = GUI()
@@ -123,6 +131,14 @@ fun main() = application {
                         drawer.lineSegment(
                             Vector2(lAnims[0].rot * 10.0, y),
                             Vector2(w2 + w2 - lAnims[0].rot * 10.0, it * r)
+                        )
+
+                        val t = abs((lAnims[frameCount % 45].rot / 90.0))
+                        drawer.stroke = ColorRGBa.WHITE
+                        drawer.strokeWeight = abs(10.0 * sin(t * 2.0 * PI)) + 2.0
+                        drawer.lineSegment(
+                            Vector2(t * w, 0.0),
+                            Vector2(t * w, h)
                         )
                     }
                 }
