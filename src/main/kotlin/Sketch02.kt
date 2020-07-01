@@ -20,9 +20,12 @@ import org.openrndr.extra.noise.Random
 import org.openrndr.extra.noise.uniform
 import org.openrndr.extra.olive.oliveProgram
 import org.openrndr.extra.palette.PaletteStudio
+import org.openrndr.extra.timeoperators.LFO
+import org.openrndr.extra.timeoperators.TimeOperators
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import org.openrndr.math.mod
+import org.openrndr.shape.LineSegment
 import java.io.File
 import kotlin.math.PI
 import kotlin.math.abs
@@ -54,6 +57,27 @@ fun main() = application {
         }
 
         rightSide.colorBuffer(0).fill(ColorRGBa.BLACK)
+
+        fun rotate2D(v: Vector2, degrees: Double, origin: Vector2 = Vector2.ZERO): Vector2 {
+            val p = v - origin
+            val a = Math.toRadians(degrees)
+
+            val w = Vector2(
+                    p.x * cos(a) - p.y * sin(a),
+                    p.y * cos(a) + p.x * sin(a)
+            )
+
+            return w + origin
+        }
+
+        fun LineSegment.rotate(theta: Double): LineSegment {
+            val mid = end.mix(start, 0.5)
+
+            return LineSegment(
+                    rotate2D(start, theta, mid),
+                    rotate2D(end, theta, mid)
+            )
+        }
 
         val font = loadFont("data/fonts/IBMPlexMono-Regular.ttf", 64.0)
         val gui = GUI()
@@ -105,6 +129,10 @@ fun main() = application {
             }
         }
 
+        val lfo = LFO()
+
+        var rAnims = List(11) { LAnim() }
+
         val rightComp = compose {
             layer {
                 draw {
@@ -115,32 +143,41 @@ fun main() = application {
                     Random.resetState()
 
                     val m = 40.0
+                    val rots = listOf(45.0, 90.0, 135.0, 180.0)
 
-                    (1..10).forEach {
+                    val rotSeed = Random.int0(rots.size)
+                    val dur = Random.int(200, 2000).toLong()
+
+                    for ((idx: Int, rAnim: LAnim) in rAnims.withIndex()) {
+                        rAnim.updateAnimation()
+
+                        if (!rAnim.hasAnimations()) {
+                            rAnim.animate("rot", rots[mod(idx + rotSeed, rots.size)], dur, Easing.QuartInOut)
+                        }
+
                         val r = (h - m) / 10.0
-                        val y = mod(it * r + lAnims[0].rot * 10.0, h)
+                        val y = mod(idx * r, h)
 
                         drawer.shadeStyle = shadeStyle {
                             fragmentTransform = """
                                 x_stroke.rgb *= step(p_time, 0.0);
                                 x_stroke.rgb *= abs(p_time) + floor(v_ftcoord.x * 2.0) / 2.0;
                             """.trimIndent()
-                            parameter("time", cos(it * 20.0 % TAU + seconds * 5.0))
+                            parameter("time", cos(idx * 20.0 % TAU + seconds * 5.0))
                         }
 
-                        drawer.strokeWeight = 2.0 + (it % 3) * 4.0
-                        drawer.lineSegment(
-                            Vector2(lAnims[0].rot * 10.0, y),
-                            Vector2(w2 + w2 - lAnims[0].rot * 10.0, it * r)
-                        )
+                        drawer.strokeWeight = 2.0 + (idx % 3) * 4.0
 
-                        val t = abs((lAnims[frameCount % 45].rot / 90.0))
+                        val line = LineSegment(
+                                Vector2(0.0, y),
+                                Vector2(w, y)
+                        ).rotate(rAnim.rot)
+
+                        drawer.lineSegment(line)
+
+                        val t = abs((rAnim.rot / PI * 0.5))
                         drawer.stroke = ColorRGBa.WHITE
                         drawer.strokeWeight = abs(10.0 * sin(t * 2.0 * PI)) + 2.0
-                        drawer.lineSegment(
-                            Vector2(t * w, 0.0),
-                            Vector2(t * w, h)
-                        )
                     }
                 }
                 post(LaserBlur().addTo(gui))
@@ -153,6 +190,9 @@ fun main() = application {
         extend(Screenshots())
         extend(paletteStudio)
         extend(gui)
+        extend(TimeOperators()) {
+            track(lfo)
+        }
         extend {
             drawer.isolatedWithTarget(leftSide) {
                 ortho(leftSide)
