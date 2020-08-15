@@ -87,7 +87,8 @@ fun main() = application {
         class LAnim : Animatable() {
             var rot = 0.0
             var x = 0.0
-            var y = 0.0
+            var y = -50.0
+            var w = 0.0
         }
 
         val lAnims = List(45) { LAnim() }
@@ -110,18 +111,23 @@ fun main() = application {
                         anim.updateAnimation()
                         if (!anim.hasAnimations()) {
                             val dur = Random.int(200, 2000).toLong()
-                            anim.animate("rot", 45.0 * Random.int(-4, 4), dur, Easing.CubicInOut)
                             val offset = Vector2.uniform(-5.0, 5.0)
+
+                            anim.delay(3000 * Random.int(1, 4) - dur - dur / 4 - dur / 6)
+                            anim.animate("w", 1.0, dur / 4)
+                            anim.complete()
+                            anim.animate("w", 0.0, dur, Easing.QuadOut)
+                            anim.delay(dur / 6)
+                            anim.animate("rot", 45.0 * Random.int(-4, 4), dur, Easing.CubicInOut)
                             anim.animate("x", w / 8.0 * Random.int(2, 6) + offset.x, dur, Easing.QuadInOut)
                             anim.animate("y", h / 12.0 * Random.int(2, 10) + offset.y, dur, Easing.QuartInOut)
                             anim.complete()
-                            anim.delay(3000 * Random.int(1, 4) - dur)
                         }
-                        val pos = Vector2(anim.x, anim.y)
+                        val pos = Vector2(anim.x, anim.y) + Random.vector2(-5.0, 5.0) * anim.w
                         barcode.parameter("c", pos)
                         barcode.parameter("id", it * 1.0)
                         barcode.parameter("time", (it * 4) % TAU + seconds + anim.rot)
-                        drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2
+                        drawer.strokeWeight = 2.0 + ((it * 19) % 4) * 2.0 * (1 - anim.w)
                         drawer.shadeStyle = barcode
                         drawer.lineSegment(pos, pos + Polar(anim.rot, 200.0).cartesian)
                     }
