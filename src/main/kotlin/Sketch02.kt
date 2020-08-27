@@ -3,10 +3,7 @@ import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.rgb
-import org.openrndr.draw.isolatedWithTarget
-import org.openrndr.draw.loadFont
-import org.openrndr.draw.renderTarget
-import org.openrndr.draw.shadeStyle
+import org.openrndr.draw.*
 import org.openrndr.extensions.Screenshots
 import org.openrndr.extra.compositor.compose
 import org.openrndr.extra.compositor.draw
@@ -25,6 +22,7 @@ import org.openrndr.extra.timeoperators.TimeOperators
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import org.openrndr.math.mod
+import org.openrndr.math.transforms.transform
 import org.openrndr.shape.LineSegment
 import java.io.File
 import kotlin.math.PI
@@ -137,7 +135,49 @@ fun main() = application {
 
         val lfo = LFO()
 
-        var rAnims = List(11) { LAnim() }
+        val rAnims = List(11) { LAnim() }
+        val rAnims1 = List(11) { LAnim() }
+        val rAnims2 = List(11) { LAnim() }
+
+        fun drawRight(anims: List<LAnim>, maxDur: Int) {
+            val m = 40.0
+            val rots = listOf(45.0, 90.0, 135.0, 180.0)
+
+            val rotSeed = Random.int0(rots.size)
+            val dur = Random.int(200, maxDur).toLong()
+
+            for ((idx: Int, rAnim: LAnim) in anims.withIndex()) {
+                rAnim.updateAnimation()
+
+                if (!rAnim.hasAnimations()) {
+                    rAnim.animate("rot", rots[mod(idx + rotSeed, rots.size)], dur, Easing.QuartInOut)
+                }
+
+                val r = (h - m) / 10.0
+                val y = mod(idx * r, h)
+
+                drawer.shadeStyle = shadeStyle {
+                    fragmentTransform = """
+                                x_stroke.rgb *= step(p_time, 0.0);
+                                x_stroke.rgb *= abs(p_time) + floor(v_ftcoord.x * 2.0) / 2.0;
+                            """.trimIndent()
+                    parameter("time", cos(idx * 20.0 % TAU + seconds * 1.0))
+                }
+
+                drawer.strokeWeight = 2.0 + (idx % 3) * 4.0
+
+                val line = LineSegment(
+                        Vector2(0.0, y),
+                        Vector2(w, y)
+                ).rotate(rAnim.rot)
+
+                drawer.lineSegment(line)
+
+                val t = abs((rAnim.rot / PI * 0.5))
+                drawer.stroke = ColorRGBa.WHITE
+                drawer.strokeWeight = abs(10.0 * sin(t * 2.0 * PI)) + 2.0
+            }
+        }
 
         val rightComp = compose {
             layer {
@@ -147,43 +187,24 @@ fun main() = application {
                     drawer.stroke = ColorRGBa.WHITE
 
                     Random.resetState()
+                    drawRight(rAnims, 4000)
 
-                    val m = 40.0
-                    val rots = listOf(45.0, 90.0, 135.0, 180.0)
-
-                    val rotSeed = Random.int0(rots.size)
-                    val dur = Random.int(200, 2000).toLong()
-
-                    for ((idx: Int, rAnim: LAnim) in rAnims.withIndex()) {
-                        rAnim.updateAnimation()
-
-                        if (!rAnim.hasAnimations()) {
-                            rAnim.animate("rot", rots[mod(idx + rotSeed, rots.size)], dur, Easing.QuartInOut)
+                    drawer.isolated {
+                        drawer.view = transform {
+                            translate(w2, 0.0)
+                            rotate(45.0)
+                            scale(0.5)
                         }
+                        drawRight(rAnims1, 1000)
+                    }
 
-                        val r = (h - m) / 10.0
-                        val y = mod(idx * r, h)
-
-                        drawer.shadeStyle = shadeStyle {
-                            fragmentTransform = """
-                                x_stroke.rgb *= step(p_time, 0.0);
-                                x_stroke.rgb *= abs(p_time) + floor(v_ftcoord.x * 2.0) / 2.0;
-                            """.trimIndent()
-                            parameter("time", cos(idx * 20.0 % TAU + seconds * 5.0))
+                    drawer.isolated {
+                        drawer.view = transform {
+                            translate(0.0, h2)
+                            rotate(315.0)
+                            scale(0.75)
                         }
-
-                        drawer.strokeWeight = 2.0 + (idx % 3) * 4.0
-
-                        val line = LineSegment(
-                                Vector2(0.0, y),
-                                Vector2(w, y)
-                        ).rotate(rAnim.rot)
-
-                        drawer.lineSegment(line)
-
-                        val t = abs((rAnim.rot / PI * 0.5))
-                        drawer.stroke = ColorRGBa.WHITE
-                        drawer.strokeWeight = abs(10.0 * sin(t * 2.0 * PI)) + 2.0
+                        drawRight(rAnims2, 2000)
                     }
                 }
                 post(LaserBlur().addTo(gui))
